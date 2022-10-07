@@ -22,11 +22,29 @@ class Card extends React.Component {
 
 class CardContainer extends React.Component {
   render() {
+    const cards = [
+      {
+      "id": 1,
+      "img": "img/strings.png",
+      "imgalt": "strings",
+      "desc": "A very authentic and beautiful instrument!!",
+      "price": '100.0',
+      "productName": "Strings",
+    },
+      {
+      "id": 2,
+      "img": "img/redguitar.jpeg",
+      "imgalt": "redg",
+      "desc": "A really cool red guitar that can produce super cool music!!",
+      "price": '299.0',
+      "productName": "Red Guitar",
+    },
+  ]
+  const cardItems = cards.map(card => <Card key={card.id} {...card}/>)
     return(
       
       <div>
-        <Card key='1' img="img/strings.png" alt="strings" productName="Strings" price='100.0' desc="A very authentic and beautiful instrument!!"/>
-        <Card key='2' img="img/redguitar.jpeg" alt="redg" productName="Red Guitar" price='299.0' desc="A really cool red guitar that can produce super cool music!!"/>
+        <div>{cardItems}</div>
       </div>
     )
   }
