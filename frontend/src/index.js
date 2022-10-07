@@ -9,7 +9,7 @@ class Card extends React.Component {
         <div className="card mb-3">
           <img className="card-img-top" src={this.props.img} alt={this.props.imgalt}/>
           <div className="card-body">
-            <h4 className="card-title">{this.props.productName}</h4>
+            <h4 className="card-title">{this.props.id}. {this.props.productName}</h4>
               Price: <strong>{this.props.price}</strong>
             <p className="card-text">{this.props.desc}</p>
             <a href="#" className="btn btn-primary">Buy</a>
@@ -21,30 +21,33 @@ class Card extends React.Component {
 }
 
 class CardContainer extends React.Component {
+  constructor(props) {
+    // 부모 컴포넌트로 props 전달
+    super(props) 
+    // 컴포넌트의 state 객체 초기화
+    this.state = {
+      cards: []
+    }
+  }
+
+  componentDidMount() {
+    fetch('cards.json')
+    .then(res => res.json())
+    .then(result => {
+      this.setState({
+        cards: result
+      })
+    })  
+  }
+
   render() {
-    const cards = [
-      {
-      "id": 1,
-      "img": "img/strings.png",
-      "imgalt": "strings",
-      "desc": "A very authentic and beautiful instrument!!",
-      "price": '100.0',
-      "productName": "Strings",
-    },
-      {
-      "id": 2,
-      "img": "img/redguitar.jpeg",
-      "imgalt": "redg",
-      "desc": "A really cool red guitar that can produce super cool music!!",
-      "price": '299.0',
-      "productName": "Red Guitar",
-    },
-  ]
-  const cardItems = cards.map(card => <Card key={card.id} {...card}/>)
+    const cards = this.state.cards
+    let items = cards.map(card => <Card {...card}/>)
+    
     return(
-      
-      <div>
-        <div>{cardItems}</div>
+      <div className="container pt-4">
+        <h3 className="'text-center text-primary">Products</h3>
+        <div className="pt-4 row">{items}</div>
       </div>
     )
   }
