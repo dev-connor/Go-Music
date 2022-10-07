@@ -9,7 +9,7 @@ class Card extends React.Component {
         <div className="card mb-3">
           <img className="card-img-top" src={this.props.img} alt={this.props.imgalt}/>
           <div className="card-body">
-            <h4 className="card-title">{this.props.id}. {this.props.productName}</h4>
+            <h4 className="card-title">{this.props.productName}</h4>
               Price: <strong>{this.props.price}</strong>
             <p className="card-text">{this.props.desc}</p>
             <a href="#" className="btn btn-primary">Buy</a>
@@ -42,7 +42,7 @@ class CardContainer extends React.Component {
 
   render() {
     const cards = this.state.cards
-    let items = cards.map(card => <Card {...card}/>)
+    let items = cards.map(card => <Card key={card.id} {...card}/>)
     
     return(
       <div className="container pt-4">
