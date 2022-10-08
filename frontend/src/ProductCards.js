@@ -32,7 +32,6 @@ export default class CardContainer extends React.Component {
         fetch(this.props.location)
             .then(res => res.json())
             .then((result) => {
-                console.log('props', this.props)
                 this.setState({
                     cards: result
                 });
