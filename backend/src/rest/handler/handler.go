@@ -72,6 +72,24 @@ func (h *Handler) SignIn(c *gin.Context) {
 	c.JSON(http.StatusOK, customer)
 }
 
+func (h *Handler) AddUser(c *gin.Context) {
+	if h.db == nil {
+		return
+	}
+	var customer models.Customer
+	err := c.ShouldBindJSON(&customer)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	customer, err = h.db.AddUser(customer)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, customer)
+}
+
 func (h *Handler) SignOut(c *gin.Context) {
 	if h.db == nil {
 		return
@@ -110,4 +128,10 @@ func (h *Handler) GetOrders(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, orders)
+}
+
+func (h *Handler) Charge(c *gin.Context) {
+	if h.db == nil {
+		return
+	}
 }
