@@ -1,4 +1,4 @@
-package handler
+package rest
 
 import (
 	"backend/src/src/dblayer"
