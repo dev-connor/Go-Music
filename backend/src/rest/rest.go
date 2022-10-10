@@ -4,10 +4,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RunAPI(address string) error {
+func RunAPIWithHandler(address string, h HandlerInterface) error {
 	r := gin.Default()
 
-	h, _ := NewHandler()
+	h, _ = NewHandler()
 
 	r.GET("/products", h.GetProducts)
 
@@ -28,6 +28,10 @@ func RunAPI(address string) error {
 	return r.Run(address)
 }
 
-func RunAPIWithHandler(address string, h HandlerInterface) {
-
+func RunAPI(address string) error {
+	h, err := NewHandler()
+	if err != nil {
+		return err
+	}
+	return RunAPIWithHandler(address, h)
 }
