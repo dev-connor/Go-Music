@@ -41,7 +41,9 @@ func (db *DBORM) GetProduct(id int) (product models.Product, err error) {
 func (db *DBORM) AddUser(customer models.Customer) (models.Customer, error) {
 	hashPassword(&customer.Pass)
 	customer.LoggedIn = true
-	return customer, db.Create(&customer).Error
+	err := db.Create(&customer).Error
+	customer.Pass = ""
+	return customer, err
 }
 
 func hashPassword(s *string) error {
