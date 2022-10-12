@@ -4,6 +4,7 @@ import (
 	"backend/src/src/models"
 	"errors"
 	"github.com/jinzhu/gorm"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type DBORM struct {
@@ -41,6 +42,22 @@ func (db *DBORM) AddUser(customer models.Customer) (models.Customer, error) {
 	hashPassword(&customer.Pass)
 	customer.LoggedIn = true
 	return customer, db.Create(&customer).Error
+}
+
+func hashPassword(s *string) error {
+	if s == nil {
+		return errors.New("Reference provided for hashing password is nil")
+	}
+	// bcrypt 패키지에서 사용할 수 있게 패스워드 문자열을 바이트 슬라이스로 변환한다.
+	sBytes := []byte(*s)
+	// GenerateFromPassword() 메서드는 패스워드 해시를 반환한다.
+	hashedBytes, err := bcrypt.GenerateFromPassword(sBytes, bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	// 패스워드 문자열을 해시 값으로 바꾼다.
+	*s = string(hashedBytes[:])
+	return nil
 }
 
 func (db *DBORM) SignInUser(email, pass string) (customer models.Customer, err error) {

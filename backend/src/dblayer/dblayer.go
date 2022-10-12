@@ -1,6 +1,9 @@
 package dblayer
 
-import "backend/src/src/models"
+import (
+	"backend/src/src/models"
+	"errors"
+)
 
 type DBLayer interface {
 	GetAllProducts() ([]models.Product, error)
@@ -13,3 +16,5 @@ type DBLayer interface {
 	SignOutUserById(int) error
 	GetCustomerOrdersByID(int) ([]models.Order, error)
 }
+
+var ErrINVALIDPASSWORD = errors.New("Invalid password")
