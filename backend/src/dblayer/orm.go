@@ -68,3 +68,7 @@ func (db *DBORM) SignOutUserById(id int) error {
 	// 사용자의 상태를 로그아웃 상태로 업데이트한다.
 	return db.Table("Customers").Where(&customer).Update("loggedin", 0).Error
 }
+
+func (db *DBORM) GetCustomerOrdersByID(id int) (orders []models.Order, err error) {
+	return orders, db.Table("orders").Select("*").Joins("join customers on customers.id = customer_id").Joins("join products on products.id = product_id").Where("customer_id=?", id).Scan(&orders).Error
+}
