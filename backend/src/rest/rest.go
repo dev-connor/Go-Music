@@ -1,11 +1,13 @@
 package rest
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
 func RunAPIWithHandler(address string, h HandlerInterface) error {
 	r := gin.Default()
+	r.Use(MyCustomerLogger())
 
 	h, _ = NewHandler()
 
@@ -34,4 +36,30 @@ func RunAPI(address string) error {
 		return err
 	}
 	return RunAPIWithHandler(address, h)
+}
+
+func MyCustomerMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// 요청을 처리하기 전에 실행할 코드
+		// 예제 변수 설정
+		c.Set("v", "123")
+		// c.Get("v) 를 요청하면 변수 값을 확인할 수 있다.
+
+		// 요청 처리 로직 실행
+		c.Next()
+
+		// 이 코드는 핸들러 실행이 끝나면 실행된다.
+
+		// 응답코드 확인
+		status := c.Writer.Status()
+		// status 를 활용하는 코드 추가
+	}
+}
+
+func MyCustomerLogger() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		fmt.Println("**********************")
+		c.Next()
+		fmt.Println("**********************")
+	}
 }
