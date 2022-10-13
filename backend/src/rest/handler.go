@@ -3,6 +3,7 @@ package rest
 import (
 	"backend/src/src/dblayer"
 	"backend/src/src/models"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -137,6 +138,70 @@ func (h *Handler) GetOrders(c *gin.Context) {
 
 func (h *Handler) Charge(c *gin.Context) {
 	if h.db == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "server database error"})
 		return
+	}
+	request := struct {
+		models.Order
+		Remember    bool   `json:"rememberCard"`
+		UseExisting bool   `json:"useExisting"`
+		Token       string `json:"token"`
+	}{}
+	err := c.ShouldBindJSON(&request)
+	// 파싱 중 에러 발생 시 보고 후 반환
+	if err != nil {
+		c.JSON(http.StatusBadRequest, request)
+		return
+	}
+
+	chargeP := &stripe.ChargeParams{
+		Amount:      stripe.Int64(int64(request.Price)),
+		Currency:    stripe.String("usd"),
+		Description: stripe.String("GoMusic charge..."),
+	}
+
+	stripeCustomerID := ""
+
+	if request.UseExisting {
+		// 저장된 카드 사용
+		fmt.Println("Getting credit card id...")
+		// 스트라이프 사용자 ID 를 데이터베이스에서 조회하는 메서드
+		stripeCustomerID, err = h.db.GetCreditCardCID(request.CustomerID)
+		if err != nil {
+			println(err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	} else {
+		cp := &stripe.CustomerParams{}
+		cp.SetSource(request.Token)
+		customer, err := customer.New(cp)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		stripeCustomerID = customer.ID
+	}
+
+	if request.Remember {
+		// 스트라이프 사용자 id 를 저장하고 데이터베이스에 저장된 사용자 ID 와 연결한다.
+		err = h.db.SaveCreditCardForCustomer(request.CustomerID, stripeCustomerID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	}
+	/* 동일 상품 주문 여보 확인 없이 새로운 주문으로 가정 */
+	// *stripe.ChargeParams 타입 인스턴스에 스트라이프 사용자 ID 를 설정한다.
+	chargeP.Customer = stripe.String(stripeCustomerID)
+	// 신용카드 결제요청
+	_, err = charge.New(chargeP)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	err = h.db.AddOrder(request.Order)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 }
