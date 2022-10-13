@@ -107,3 +107,23 @@ func (db *DBORM) SignOutUserById(id int) error {
 func (db *DBORM) GetCustomerOrdersByID(id int) (orders []models.Order, err error) {
 	return orders, db.Table("orders").Select("*").Joins("join customers on customers.id = customer_id").Joins("join products on products.id = product_id").Where("customer_id=?", id).Scan(&orders).Error
 }
+
+// orders 테이블에 결제내역 추가
+func (db *DBORM) AddOrder(order models.Order) error {
+	return db.Create(&order).Error
+}
+
+// 신용카드 ID 조회
+func (db *DBORM) GetCreditCardCID(id int) (string, error) {
+	cusomterWithCCID := struct {
+		models.Customer
+		CCID string `gorm:"column:cc_customerid"`
+	}{}
+	return cusomterWithCCID.CCID, db.First(&cusomterWithCCID, id).Error
+}
+
+// 신용카드 정보 저장
+func (db *DBORM) SaveCreditCardForCustomer(id int, ccid string) error {
+	result := db.Table("customers").Where("id=?", id)
+	return result.Update("cc_customerid", ccid).Error
+}

@@ -23,9 +23,15 @@ type Handler struct {
 	db dblayer.DBLayer
 }
 
-func NewHandler() (*Handler, error) {
+func NewHandler(db, constring string) (HandlerInterface, error) {
+	db, err := dblayer.NewORM(db, constring)
+	if err != nil {
+		return nil, err
+	}
 	// Handler 객체에 대한 포인터 생성
-	return new(Handler), nil
+	return &Handler{
+		db: db,
+	}, nil
 }
 
 func (h *Handler) GetProducts(c *gin.Context) {
