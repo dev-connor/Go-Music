@@ -5,11 +5,13 @@ import (
 	"backend/src/src/models"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"strconv"
 )
 
 type HandlerInterface interface {
+	GetMainPage(c *gin.Context)
 	GetProducts(c *gin.Context)
 	GetPromos(c *gin.Context)
 	AddUser(c *gin.Context)
@@ -23,34 +25,47 @@ type Handler struct {
 	db dblayer.DBLayer
 }
 
-func NewHandler(db, constring string) (HandlerInterface, error) {
-	db, err := dblayer.NewORM(db, constring)
+func NewHandler() (HandlerInterface, error) {
+	return NewHandlerWithParams("mysql", "root:root@/gomusic")
+}
+
+func NewHandlerWithParams(dbtype, conn string) (HandlerInterface, error) {
+	db, err := dblayer.NewORM(dbtype, conn)
 	if err != nil {
 		return nil, err
 	}
-	// Handler 객체에 대한 포인터 생성
 	return &Handler{
 		db: db,
 	}, nil
 }
 
+func NewHandlerWithDB(db dblayer.DBLayer) HandlerInterface {
+	return &Handler{db: db}
+}
+
+func (h *Handler) GetMainPage(c *gin.Context) {
+	log.Println("Main page....")
+	c.String(http.StatusOK, "Main page for secure API!!")
+	//fmt.Fprintf(c.Writer, "Main page for secure API!!")
+}
+
 func (h *Handler) GetProducts(c *gin.Context) {
 	if h.db == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "server database error"})
 		return
 	}
 	products, err := h.db.GetAllProducts()
 	if err != nil {
-		/*
-			첫 번째 매개변수는 HTTP 상태 코드, 두 번째는 응답의 바디
-		*/
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	fmt.Printf("Found %d products\n", len(products))
 	c.JSON(http.StatusOK, products)
 }
 
 func (h *Handler) GetPromos(c *gin.Context) {
 	if h.db == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "server database error"})
 		return
 	}
 	promos, err := h.db.GetPromos()
@@ -61,31 +76,9 @@ func (h *Handler) GetPromos(c *gin.Context) {
 	c.JSON(http.StatusOK, promos)
 }
 
-func (h *Handler) SignIn(c *gin.Context) {
-	if h.db == nil {
-		return
-	}
-	var customer models.Customer
-	err := c.ShouldBindJSON(&customer)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	customer, err = h.db.SignInUser(customer.Email, customer.Pass)
-	if err != nil {
-		// 잘못된 패스워드인 경우 forbidden http 에러 반환
-		if err == dblayer.ErrINVALIDPASSWORD {
-			c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, customer)
-}
-
 func (h *Handler) AddUser(c *gin.Context) {
 	if h.db == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "server database error"})
 		return
 	}
 	var customer models.Customer
@@ -102,17 +95,41 @@ func (h *Handler) AddUser(c *gin.Context) {
 	c.JSON(http.StatusOK, customer)
 }
 
+func (h *Handler) SignIn(c *gin.Context) {
+	if h.db == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "server database error"})
+		return
+	}
+	var customer models.Customer
+	err := c.ShouldBindJSON(&customer)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	customer, err = h.db.SignInUser(customer.Email, customer.Pass)
+	if err != nil {
+		if err == dblayer.ErrINVALIDPASSWORD {
+			c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, customer)
+}
+
 func (h *Handler) SignOut(c *gin.Context) {
 	if h.db == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "server database error"})
 		return
 	}
 	p := c.Param("id")
-	// p 는 문자형. 정수형으로 변환해야 함
 	id, err := strconv.Atoi(p)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
 	err = h.db.SignOutUserById(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -122,20 +139,18 @@ func (h *Handler) SignOut(c *gin.Context) {
 
 func (h *Handler) GetOrders(c *gin.Context) {
 	if h.db == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "server database error"})
 		return
 	}
-	// id 매개변수 추출
 	p := c.Param("id")
-
 	id, err := strconv.Atoi(p)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	// 데이터베이스 레이어 메서드 호출과 주문내역 조회
 	orders, err := h.db.GetCustomerOrdersByID(id)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -153,28 +168,32 @@ func (h *Handler) Charge(c *gin.Context) {
 		UseExisting bool   `json:"useExisting"`
 		Token       string `json:"token"`
 	}{}
+
 	err := c.ShouldBindJSON(&request)
-	// 파싱 중 에러 발생 시 보고 후 반환
+	log.Printf("request: %+v \n", request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, request)
 		return
 	}
-
+	// Set your secret key: remember to change this to your live secret key in production
+	// Keys can be obtained from: https://dashboard.stripe.com/account/apikeys
+	// They key below is just for testing
+	stripe.Key = "sk_test_4eC39HqLyjWDarjtT1zdp7dc"
+	//test cards available at:	https://stripe.com/docs/testing#cards
+	//setting charge parameters
 	chargeP := &stripe.ChargeParams{
 		Amount:      stripe.Int64(int64(request.Price)),
 		Currency:    stripe.String("usd"),
 		Description: stripe.String("GoMusic charge..."),
 	}
-
 	stripeCustomerID := ""
-
+	//Either remembercard or use exeisting should be enabled but not both
 	if request.UseExisting {
-		// 저장된 카드 사용
-		fmt.Println("Getting credit card id...")
-		// 스트라이프 사용자 ID 를 데이터베이스에서 조회하는 메서드
+		//use existing
+		log.Println("Getting credit card id...")
 		stripeCustomerID, err = h.db.GetCreditCardCID(request.CustomerID)
 		if err != nil {
-			println(err)
+			log.Println(err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
@@ -187,25 +206,23 @@ func (h *Handler) Charge(c *gin.Context) {
 			return
 		}
 		stripeCustomerID = customer.ID
-	}
-
-	if request.Remember {
-		// 스트라이프 사용자 id 를 저장하고 데이터베이스에 저장된 사용자 ID 와 연결한다.
-		err = h.db.SaveCreditCardForCustomer(request.CustomerID, stripeCustomerID)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
+		if request.Remember {
+			//save card!!
+			err = h.db.SaveCreditCardForCustomer(request.CustomerID, stripeCustomerID)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
 		}
 	}
-	/* 동일 상품 주문 여보 확인 없이 새로운 주문으로 가정 */
-	// *stripe.ChargeParams 타입 인스턴스에 스트라이프 사용자 ID 를 설정한다.
+	//we should check if the customer already ordered the same item or not but for simplicity, let's assume it's a new order
 	chargeP.Customer = stripe.String(stripeCustomerID)
-	// 신용카드 결제요청
 	_, err = charge.New(chargeP)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	err = h.db.AddOrder(request.Order)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
