@@ -33,13 +33,13 @@ func NewHandler() (HandlerInterface, error) {
 }
 
 func NewHandlerWithParams(dbtype, conn string) (HandlerInterface, error) {
-	//db, err := dblayer.NewORM(dbtype, conn)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//return &Handler{
-	//	db: db,
-	//}, nil
+	db, err := dblayer.NewORM(dbtype, conn)
+	if err != nil {
+		return nil, err
+	}
+	return &Handler{
+		db: db,
+	}, nil
 	return nil, nil
 }
 
