@@ -12,10 +12,10 @@ type DBORM struct {
 }
 
 func NewORM(dbname, con string) (*DBORM, error) {
-	db, err := gorm.Open(dbname, con+"?parseTime=true")
+	//_, err := gorm.Open(dbname, con+"?parseTime=true")
 	return &DBORM{
-		DB: db,
-	}, err
+		DB: nil,
+	}, nil
 }
 
 func (db *DBORM) GetAllProducts() (products []models.Product, err error) {

@@ -29,18 +29,17 @@ type Handler struct {
 }
 
 func NewHandler() (HandlerInterface, error) {
-	return NewHandlerWithParams("mysql", "root:root@/gomusic")
+	return NewHandlerWithParams("mysql", "root:root@/GoMusic")
 }
 
 func NewHandlerWithParams(dbtype, conn string) (HandlerInterface, error) {
-	db, err := dblayer.NewORM(dbtype, conn)
+	_, err := dblayer.NewORM(dbtype, conn)
 	if err != nil {
 		return nil, err
 	}
 	return &Handler{
-		db: db,
+		db: nil,
 	}, nil
-	return nil, nil
 }
 
 func NewHandlerWithDB(db dblayer.DBLayer) HandlerInterface {
