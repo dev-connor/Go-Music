@@ -2,35 +2,8 @@ package rest
 
 import (
 	"fmt"
-	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 )
-
-func RunAPIWithHandler(address string, h HandlerInterface) error {
-	r := gin.Default()
-	r.Use(MyCustomerLogger())
-	r.Use(static.ServeRoot("/", "../public/build"))
-
-	h, _ = NewHandler()
-
-	r.GET("/products", h.GetProducts)
-
-	r.GET("/promos", h.GetPromos)
-
-	userGroup := r.Group("/user")
-	{
-		userGroup.POST("/:id/signout", h.SignOut)
-		userGroup.GET("/:id/orders", h.GetOrders)
-	}
-	usersGroup := r.Group("/users")
-	{
-		usersGroup.POST("/charge", h.Charge)
-		usersGroup.POST("/signin", h.SignIn)
-		usersGroup.POST("", h.AddUser)
-	}
-
-	return r.Run(address)
-}
 
 func RunAPI(address string) error {
 	h, err := NewHandler()
@@ -40,28 +13,50 @@ func RunAPI(address string) error {
 	return RunAPIWithHandler(address, h)
 }
 
-func MyCustomerMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		// 요청을 처리하기 전에 실행할 코드
-		// 예제 변수 설정
-		c.Set("v", "123")
-		// c.Get("v) 를 요청하면 변수 값을 확인할 수 있다.
+func RunAPIWithHandler(address string, h HandlerInterface) error {
+	//Get gin's default engine
+	r := gin.Default()
+	//r.Use(MyCustomLogger())
+	//load homepage
+	r.GET("/", h.GetMainPage)
+	//get products
+	r.GET("/products", h.GetProducts)
+	//get promos
+	r.GET("/promos", h.GetPromos)
+	/*
+		//post user sign in
+		r.POST("/user/signin", h.SignIn)
+		//post user sign out
+		r.POST("/user/:id/signout", h.SignOut)
+		//get user orders
+		r.GET("/user/:id/orders", h.GetOrders)
+		//post purchase charge
+		r.POST("/user/charge", h.Charge)
+	*/
 
-		// 요청 처리 로직 실행
-		c.Next()
-
-		// 이 코드는 핸들러 실행이 끝나면 실행된다.
-
-		// 응답코드 확인
-		status := c.Writer.Status()
-		// status 를 활용하는 코드 추가
+	userGroup := r.Group("/user")
+	{
+		userGroup.POST("/:id/signout", h.SignOut)
+		userGroup.GET("/:id/orders", h.GetOrders)
 	}
+
+	usersGroup := r.Group("/users")
+	{
+		usersGroup.POST("/charge", h.Charge)
+		usersGroup.POST("/signin", h.SignIn)
+		usersGroup.POST("", h.AddUser)
+	}
+
+	r.Static("/img", "../public/img")
+	//return autotls.Run(r, address)
+	return r.Run(address)
+	//return r.RunTLS(address, "cert.pem", "key.pem")
 }
 
-func MyCustomerLogger() gin.HandlerFunc {
+func MyCustomLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		fmt.Println("**********************")
+		fmt.Println("************************************")
 		c.Next()
-		fmt.Println("**********************")
+		fmt.Println("************************************")
 	}
 }
