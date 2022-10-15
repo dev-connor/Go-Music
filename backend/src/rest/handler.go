@@ -59,8 +59,11 @@ func (h *Handler) GetProducts(c *gin.Context) {
 	//}
 	//products, err := h.db.GetAllProducts()
 
+	//g := gorm.Model{ID: 3}
+
 	products := []models.Product{
 		{
+			ID:          3,
 			ProductName: "상품",
 			Price:       10000,
 		},

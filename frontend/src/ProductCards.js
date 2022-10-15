@@ -31,11 +31,12 @@ export default class CardContainer extends React.Component {
 
     componentDidMount() {
         axios.get('http://127.0.0.1:8000/products')
+        .then(res => res.json())
         .then((res) => {this.setState({
             cards: res
         })})
         .catch((err) => {console.log(err)})
-        
+
         // fetch(this.props.location)
         //     .then(res => res.json())
         //     .then((result) => {

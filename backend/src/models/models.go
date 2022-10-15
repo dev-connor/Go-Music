@@ -6,7 +6,8 @@ import (
 )
 
 type Product struct {
-	gorm.Model
+	//gorm.Model
+	ID          uint
 	Image       string  `json:"img"`
 	SmallImage  string  `gorm:"column:smallimg" json:"small_img"`
 	ImagAlt     string  `json:"imgalt" gorm:"column:imgalt"`
