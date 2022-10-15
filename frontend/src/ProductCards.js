@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React from 'react';
 
 class Card extends React.Component {
@@ -29,13 +30,19 @@ export default class CardContainer extends React.Component {
     }
 
     componentDidMount() {
-        fetch(this.props.location)
-            .then(res => res.json())
-            .then((result) => {
-                this.setState({
-                    cards: result
-                });
-            });
+        axios.get('http://127.0.0.1:8000/products')
+        .then((res) => {this.setState({
+            cards: res
+        })})
+        .catch((err) => {console.log(err)})
+        
+        // fetch(this.props.location)
+        //     .then(res => res.json())
+        //     .then((result) => {
+        //         this.setState({
+        //             cards: result
+        //         });
+        //     });
     }
 
     render() {

@@ -47,7 +47,7 @@ func RunAPIWithHandler(address string, h HandlerInterface) error {
 		usersGroup.POST("", h.AddUser)
 	}
 
-	r.Static("/img", "../public/img")
+	//r.Static("/img", "../public/img")
 	//return autotls.Run(r, address)
 	return r.Run(address)
 	//return r.RunTLS(address, "cert.pem", "key.pem")

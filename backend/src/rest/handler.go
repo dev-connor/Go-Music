@@ -57,12 +57,28 @@ func (h *Handler) GetProducts(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "server database error"})
 		return
 	}
-	products, err := h.db.GetAllProducts()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+	//products, err := h.db.GetAllProducts()
+
+	products := []models.Product{
+		{
+			ProductName: "상품",
+			Price:       10000,
+		},
 	}
-	fmt.Printf("Found %d products\n", len(products))
+
+	//Image       string  `json:"img"`
+	//SmallImage  string  `gorm:"column:smallimg" json:"small_img"`
+	//ImagAlt     string  `json:"imgalt" gorm:"column:imgalt"`
+	//Price       float64 `json:"price"`
+	//Promotion   float64 `json:"promotion"` //sql.NullFloat64
+
+	//Description string
+
+	//if err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	//	return
+	//}
+	//fmt.Printf("Found %d products\n", len(products))
 	c.JSON(http.StatusOK, products)
 }
 
