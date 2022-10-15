@@ -1,14 +1,29 @@
-import React from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 
 
-export default function About(props) {
+export default function About() {
+    const [about, setAbout] = useState('')
+
+    useEffect(() => {
+        const call = async() => {
+            const response = await axios.get('http://127.0.0.1:8000/about')
+            console.log(response);
+            setAbout(response.data)
+        }
+
+        call()
+
+    }, [])
+    
+
+
     return (
         <div className="row mt-5">
             <div className="col-12 order-lg-1">
                 <h3 className="mb-4">About the Go Music Store</h3>
-                <p>Go music is a modern online msucial instruments store</p>
-                <p>Explore how you can combine the power of React and Go, to build a fast and beautiful looking online store.</p>
-                <p>We will cover how to build this website step by step.</p>
+                <div>{about}</div>
+                
             </div>
         </div>);
 }

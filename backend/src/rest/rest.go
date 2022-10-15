@@ -36,6 +36,7 @@ func RunAPIWithHandler(address string, h HandlerInterface) error {
 	r.GET("/products", h.GetProducts)
 	//get promos
 	r.GET("/promos", h.GetPromos)
+	r.GET("/about", h.GetAbout)
 	/*
 		//post user sign in
 		r.POST("/user/signin", h.SignIn)

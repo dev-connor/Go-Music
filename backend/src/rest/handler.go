@@ -17,6 +17,7 @@ type HandlerInterface interface {
 	GetMainPage(c *gin.Context)
 	GetProducts(c *gin.Context)
 	GetPromos(c *gin.Context)
+	GetAbout(c *gin.Context)
 	AddUser(c *gin.Context)
 	SignIn(c *gin.Context)
 	SignOut(c *gin.Context)
@@ -50,6 +51,10 @@ func (h *Handler) GetMainPage(c *gin.Context) {
 	log.Println("Main page....")
 	c.String(http.StatusOK, "Main page for secure API!!")
 	//fmt.Fprintf(c.Writer, "Main page for secure API!!")
+}
+
+func (h *Handler) GetAbout(c *gin.Context) {
+	c.String(http.StatusOK, "Go music is a modern online msucial instruments store\n\nExplore how you can combine the power of React and Go, to build a fast and beautiful looking online store.\n\nWe will cover how to build this website step by step.")
 }
 
 func (h *Handler) GetProducts(c *gin.Context) {
