@@ -53,10 +53,10 @@ func (h *Handler) GetMainPage(c *gin.Context) {
 }
 
 func (h *Handler) GetProducts(c *gin.Context) {
-	if h.db == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "server database error"})
-		return
-	}
+	//if h.db == nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "server database error"})
+	//	return
+	//}
 	//products, err := h.db.GetAllProducts()
 
 	products := []models.Product{
