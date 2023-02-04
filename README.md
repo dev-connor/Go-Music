@@ -1,9 +1,8 @@
 # Go-Music
 
-![image](https://user-images.githubusercontent.com/70655507/216619887-7ba40402-1ba1-4acd-a32e-e77796d23aa5.png)
-
-
 React 와 Go 를 이용해 악기 판매사이트를 제작했습니다. 
+
+![Home](https://user-images.githubusercontent.com/70655507/216764186-e9b22a9c-61af-416c-9334-4220803dc82c.png)
 
 Stack: React, Go, Gin, GORM
 
@@ -15,6 +14,7 @@ Stack: React, Go, Gin, GORM
 > 개발과정은 여기 블로그에서 볼 수 있습니다. <br>
 https://devconnor.tistory.com/113
 
+<br><br>
 
 Frontend
 - 목록 뿌리기 
@@ -27,8 +27,27 @@ Backend
 - 패스워드 해싱 (Password hashing) 
 - 신용카드 결제요청하기 (스프라이트 api) 
 
+---
 
-1. 라우팅 정의
+<br><br><br>
+
+1. 네비게이션 목록
+
+![Home](https://user-images.githubusercontent.com/70655507/216764220-db33ef2c-383d-425a-b50d-a9786b257f1b.png)
+
+<img width="1427" alt="products" src="https://user-images.githubusercontent.com/70655507/216764233-7d6812ca-8fb2-44d4-9f81-8ce6597674b9.png">
+
+> DB 에 있는 악기 정보들을 조회하는 쿼리를
+
+<img width="964" alt="쿼리 로그" src="https://user-images.githubusercontent.com/70655507/216764238-30a52085-b17e-4d3c-a64d-e9cab2fc3f49.png">
+
+> 로그를 통해 확인할 수 있습니다.
+
+![Promotions](https://user-images.githubusercontent.com/70655507/216764224-58dff736-aa53-4e74-b742-c2aa01ec9e00.png)
+
+> Promotions 탭에서는 할인이 적용된 상품들의 목록을 볼 수 있습니다. 
+
+2. 라우팅 정의
 ```go
 func RunAPI(address string) error {
     r := gin.Default()
@@ -69,6 +88,7 @@ func RunAPI(address string) error {
 
     })
 
+
     // 구매 목록 조회
     r.GET("/user/:id/orders", func(c *gin.Context) {
         // 해당 ID 의 사용자의 주문내역 조회
@@ -84,11 +104,11 @@ func RunAPI(address string) error {
 }
 ```
 
-2. 테이블
+3. 테이블
 
 ![image](https://user-images.githubusercontent.com/70655507/216621139-5240c27b-947a-471b-9489-1a7347db8e6d.png)
 
-3. 커스텀 미들웨어 작성
+4. 커스텀 미들웨어 작성
 
 ```go
 func MyCustomerMiddleware() gin.HandlerFunc {
@@ -126,7 +146,7 @@ func RunAPIWithHandler(address string, h HandlerInterface) error {
 
 > Gin 의 기본 미들웨어는 유지하고 MyCustomLogger() 라는 새로운 커스텀 미들웨어를 추가한다.
 
-4. 자체 서명 디지털 인증서 발급
+5. 자체 서명 디지털 인증서 발급
 
 Go 의 기본 라이브러리를 사용하여 인증서를 발급해보자.
 
@@ -137,7 +157,9 @@ Go 의 기본 라이브러리를 사용하여 인증서를 발급해보자.
 
 > 두 파일이 생긴 것을 볼 수 있다.
 
-5. 패스워드 해싱 (Password hashing)
+6. 패스워드 해싱 (Password hashing)
+
+![Sign in](https://user-images.githubusercontent.com/70655507/216764251-92bcd704-a034-4fd5-b0f3-83e99014a26e.png)
 
 위 함수는 bcrypt 패키지를 사용한다. 이 패키지는 패스워드 해싱에 주로 사용된다.
 
