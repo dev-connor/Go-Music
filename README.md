@@ -53,6 +53,8 @@ https://user-images.githubusercontent.com/70655507/216765362-3582628b-985e-4925-
 
 > 유효한 카드인지 검증하는 모습을 볼 수 있다.
 
+<br><br>
+
 3. 라우팅 정의
 ```go
 func RunAPI(address string) error {
