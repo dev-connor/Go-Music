@@ -3,8 +3,11 @@ package dblayer
 import (
 	"backend/src/src/models"
 	"errors"
-	"github.com/jinzhu/gorm"
+	"gorm.io/driver/postgres"
+
+	//"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type DBORM struct {
@@ -12,10 +15,11 @@ type DBORM struct {
 }
 
 func NewORM(dbname, con string) (*DBORM, error) {
-	//_, err := gorm.Open(dbname, con+"?parseTime=true")
+	dsn := "host=localhost user=student dbname=go_music port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	return &DBORM{
-		DB: nil,
-	}, nil
+		DB: db,
+	}, err
 }
 
 func (db *DBORM) GetAllProducts() (products []models.Product, err error) {
@@ -90,9 +94,9 @@ func checkPassword(existingHash, incomingPass string) bool {
 
 func (db *DBORM) SignOutUserById(id int) error {
 	customer := models.Customer{
-		Model: gorm.Model{
-			ID: uint(id),
-		},
+		//Model: gorm.Model{
+		//	ID: uint(id),
+		//},
 	}
 	return db.Table("Customers").Where(&customer).Update("loggedin", 0).Error
 }

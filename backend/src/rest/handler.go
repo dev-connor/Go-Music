@@ -34,13 +34,13 @@ func NewHandler() (HandlerInterface, error) {
 }
 
 func NewHandlerWithParams(dbtype, conn string) (HandlerInterface, error) {
-	_, err := dblayer.NewORM(dbtype, conn)
+	db, err := dblayer.NewORM(dbtype, conn)
 	if err != nil {
 		return nil, err
 	}
 	return &Handler{
-		db: nil,
-	}, nil
+		db: db,
+	}, err
 }
 
 func NewHandlerWithDB(db dblayer.DBLayer) HandlerInterface {
@@ -58,35 +58,18 @@ func (h *Handler) GetAbout(c *gin.Context) {
 }
 
 func (h *Handler) GetProducts(c *gin.Context) {
-	//if h.db == nil {
-	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "server database error"})
-	//	return
-	//}
-	//products, err := h.db.GetAllProducts()
-
-	//g := gorm.Model{ID: 3}
-
-	products := []models.Product{
-		{
-			ID:          3,
-			ProductName: "상품",
-			Price:       10000,
-		},
+	if h.db == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "server database error"})
+		return
 	}
 
-	//Image       string  `json:"img"`
-	//SmallImage  string  `gorm:"column:smallimg" json:"small_img"`
-	//ImagAlt     string  `json:"imgalt" gorm:"column:imgalt"`
-	//Price       float64 `json:"price"`
-	//Promotion   float64 `json:"promotion"` //sql.NullFloat64
+	products, err := h.db.GetAllProducts()
 
-	//Description string
-
-	//if err != nil {
-	//	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-	//	return
-	//}
-	//fmt.Printf("Found %d products\n", len(products))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	fmt.Printf("Found %d products\n", len(products))
 	c.JSON(http.StatusOK, products)
 }
 
