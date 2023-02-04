@@ -47,7 +47,13 @@ Backend
 
 > Promotions 탭에서는 할인이 적용된 상품들의 목록을 볼 수 있습니다. 
 
-2. 라우팅 정의
+2. 신용카드 결제요청하기
+
+https://user-images.githubusercontent.com/70655507/216765362-3582628b-985e-4925-bb25-54d7c096d394.mp4
+
+> 유효한 카드인지 검증하는 모습을 볼 수 있다.
+
+3. 라우팅 정의
 ```go
 func RunAPI(address string) error {
     r := gin.Default()
@@ -104,11 +110,11 @@ func RunAPI(address string) error {
 }
 ```
 
-3. 테이블
+4. 테이블
 
 ![image](https://user-images.githubusercontent.com/70655507/216621139-5240c27b-947a-471b-9489-1a7347db8e6d.png)
 
-4. 커스텀 미들웨어 작성
+5. 커스텀 미들웨어 작성
 
 ```go
 func MyCustomerMiddleware() gin.HandlerFunc {
@@ -146,7 +152,7 @@ func RunAPIWithHandler(address string, h HandlerInterface) error {
 
 > Gin 의 기본 미들웨어는 유지하고 MyCustomLogger() 라는 새로운 커스텀 미들웨어를 추가한다.
 
-5. 자체 서명 디지털 인증서 발급
+6. 자체 서명 디지털 인증서 발급
 
 Go 의 기본 라이브러리를 사용하여 인증서를 발급해보자.
 
@@ -157,7 +163,7 @@ Go 의 기본 라이브러리를 사용하여 인증서를 발급해보자.
 
 > 두 파일이 생긴 것을 볼 수 있다.
 
-6. 패스워드 해싱 (Password hashing)
+7. 패스워드 해싱 (Password hashing)
 
 ![Sign in](https://user-images.githubusercontent.com/70655507/216764251-92bcd704-a034-4fd5-b0f3-83e99014a26e.png)
 
@@ -186,4 +192,5 @@ func hashPassword(s *string) error {
     return nil
 }
 ```
+
 
